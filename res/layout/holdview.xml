@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp"
+    android:focusable="true"
+    android:clickable="true"
+	 >
+
+    <ImageView
+        android:id="@+id/bg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:focusable="false"
+        android:clickable="false"
+        android:scaleType="centerInside"
+        android:focusableInTouchMode="false" />
+
+    <RelativeLayout
+        android:id="@+id/t"
+        android:layout_width="wrap_content"
+        android:clickable="false"
+        android:layout_height="317dp" >
+
+        <ImageView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="8dp"
+            android:focusable="false"
+            android:clickable="false"
+            android:scaleType="centerInside"
+            android:focusableInTouchMode="false"
+            android:src="@drawable/main_c_title" />
+
+        <ImageView
+            android:id="@+id/main"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/title"
+            android:layout_centerInParent="true"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:clickable="false"
+            android:scaleType="centerInside"
+            android:src="@drawable/main_c" />
+    </RelativeLayout>
+
+</FrameLayout>
