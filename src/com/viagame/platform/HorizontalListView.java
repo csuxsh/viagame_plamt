@@ -29,7 +29,8 @@ package com.viagame.platform;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import uiadapter.GameListAdapter;
+import com.viagame.platform.uiadapter.GameListAdapter;
+
 
 import android.annotation.SuppressLint;
 import android.content.Context;

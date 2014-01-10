@@ -7,6 +7,7 @@ public class Game {
 	public final static String CONTROLL_F2 = "F2";
 	public final static String CONTROLL_E1 ="E1";
 	public final static String CONTROLL_K1 ="K1";
+	public final static String SELF_ADD = "self_add";
 	
 	private int id = 0;
 	private String name = "";

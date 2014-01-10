@@ -33,36 +33,39 @@ public class AppHelper {
 		dbh  = DBHelper.getDBHelper(context);
 		this.context = context;
 	}
-    /**
-     * 向数据库插入一个应用的信息，并且将应用的图标半场到sdcard上。如果该应用已经存在于数据则先删除记录再插入
-     * 
-     * @param 应用的包
-     * @return 操作成功返回true,失败返回false
-     */
+	/**
+	 * 向数据库插入一个应用的信息，并且将应用的图标半场到sdcard上。如果该应用已经存在于数据则先删除记录再插入
+	 * 
+	 * @param 应用的包
+	 * @return 操作成功返回true,失败返回false
+	 */
 	@SuppressLint("SdCardPath")
 	synchronized public boolean Insert(Game game)//String name, String exists, String control, String url)
 	{
 		PackageManager pm = context.getPackageManager();
-		Bitmap icon = null;
-		try {
-			icon = DrawableUtil.drawableToBitmap(pm.getApplicationIcon(game.getName()));
-		} catch (NameNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-			return false;
-		}
 		File icon_file = new File("/mnt/sdcard/viagame/app_icon/"+game.getName()+".icon");
-		FileOutputStream fos = null;
-		try {
-			fos = new FileOutputStream(icon_file);
-			icon.compress(Bitmap.CompressFormat.PNG, 100, fos);
-			fos.flush();
-			fos.close();
-		}
-		catch(Exception e)
+		if(!icon_file.exists())
 		{
-			e.printStackTrace();
-			return false;
+			Bitmap icon = null;
+			try {
+				icon = DrawableUtil.drawableToBitmap(pm.getApplicationIcon(game.getName()));
+			} catch (NameNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				return false;
+			}
+			FileOutputStream fos = null;
+			try {
+				fos = new FileOutputStream(icon_file);
+				icon.compress(Bitmap.CompressFormat.PNG, 100, fos);
+				fos.flush();
+				fos.close();
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+				return false;
+			}
 		}
 		SQLiteDatabase db = dbh.getReadableDatabase();
 		db.delete(DBHelper.TABLE, "_name=?", new String[] { game.getName() });
@@ -83,12 +86,12 @@ public class AppHelper {
 		}
 		return false;
 	}
-    /**
-     * 在数据库中删除一个应用。
-     * 
-     * @param 应用的包名
-     * @return 操作成功返回true,失败返回false
-     */
+	/**
+	 * 在数据库中删除一个应用。
+	 * 
+	 * @param 应用的包名
+	 * @return 操作成功返回true,失败返回false
+	 */
 	synchronized public boolean delete(String name)
 	{
 		SQLiteDatabase db = dbh.getReadableDatabase();
@@ -99,12 +102,12 @@ public class AppHelper {
 			return false;
 		return true;
 	}
-    /**
-     * 在数据库中查询指定应用
-     * 
-     * @param 应用的包名
-     * @return 数据库的cursor
-     */
+	/**
+	 * 在数据库中查询指定应用
+	 * 
+	 * @param 应用的包名
+	 * @return 数据库的cursor
+	 */
 	synchronized public Cursor Qurey(String selection, String args[])
 	{
 		//String arg = startdate+" and "+enddate;
@@ -112,9 +115,9 @@ public class AppHelper {
 			selection = null;
 		if(selection == null || selection.equals(""))
 			args = null;
-		
+
 		SQLiteDatabase db = dbh.getReadableDatabase();
-		
+
 		Cursor cursor = null;
 		try {
 			cursor = db.query(DBHelper.TABLE, null, selection,

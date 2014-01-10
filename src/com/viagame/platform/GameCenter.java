@@ -4,12 +4,12 @@ package com.viagame.platform;
 import java.io.File;
 import java.util.List;
 
-import uiadapter.GameListAdapter;
-import uiadapter.PopAddAdapter;
 
 import com.viagame.platform.bean.Game;
 import com.viagame.platform.db.AppHelper;
 import com.viagame.platform.db.DBHelper;
+import com.viagame.platform.uiadapter.GameListAdapter;
+import com.viagame.platform.uiadapter.PopAddAdapter;
 import com.viagame.platform.util.FileUtil;
 
 import android.annotation.SuppressLint;
@@ -106,8 +106,6 @@ public class GameCenter extends Activity implements OnFocusChangeListener, OnCli
 		FrameLayout.LayoutParams p2 = (android.widget.FrameLayout.LayoutParams) current_game.getLayoutParams();
 		p2.setMargins(0, 270 * getWindowManager().getDefaultDisplay().getHeight() / 768, 0, 0);
 		current_game.setLayoutParams(p2);
-		checkApp();
-		gameview.setAdapter(mAdapter);
 
 		c1 = (ImageButton) this.findViewById(R.id.gamecenter_c);
 		c1_select = (ImageView) this.findViewById(R.id.gamecenter_c_select);
@@ -157,10 +155,17 @@ public class GameCenter extends Activity implements OnFocusChangeListener, OnCli
 		
 }
 @Override
+public void onResume()
+{	
+	super.onResume();
+	checkApp();
+	gameview.setAdapter(mAdapter);
+}
+@Override
 public void onPause()
 {
 	super.onPause();
-	this.finish();
+//	this.finish();
 	overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 
 }
@@ -189,8 +194,13 @@ private void checkApp()
 		}
 		if((i == applist.size()) && game.getExits().equals("true"))
 		{
-			game.setExits("false");
-			aph.Insert(game);
+			if(game.getDesc().equals(Game.SELF_ADD))
+				aph.delete(game.getName());
+			else
+			{	
+				game.setExits("false");
+				aph.Insert(game);
+			}
 		}
 		mAdapter.cursor.moveToNext();
 	}
@@ -226,7 +236,7 @@ private void CopyMappings()
 	Cursor cursor= null;
 
 	cursor = sqLiteDatabase.query("_via_game", null, null,
-			null, null, null, "_description");
+			null, null, null, "_lable");
 	cursor.moveToFirst();
 	while(!cursor.isLast())
 		//for(int i = 0; i < mappingFiles.length; i++)
@@ -283,13 +293,13 @@ private boolean CopyDatabase()
 		cv.put("_name", cursor.getString(cursor.getColumnIndex("_name")));
 		cv.put("_description", cursor.getString(cursor.getColumnIndex("_description")));
 		cv.put("_lable", cursor.getString(cursor.getColumnIndex("_lable")));
-		cv.put("_url",  cursor.getString(cursor.getColumnIndex("url")));
+		cv.put("_url",  cursor.getString(cursor.getColumnIndex("_url")));
 		cv.put("_control", cursor.getString(cursor.getColumnIndex("_control")));
-		cv.put("_exists", true);
-		String hidonly = cursor.getString(cursor.getColumnIndex("_hidonly"));
-		if(hidonly==null)
-			hidonly = "false";
-		cv.put("_hidonly", hidonly);
+		cv.put("_exists", "false");
+	//	String hidonly = cursor.getString(cursor.getColumnIndex("_hidonly"));
+	//	if(hidonly==null)
+	//		hidonly = "false";
+	//	cv.put("_hidonly", hidonly);
 		try {
 			if(db.insert(DBHelper.TABLE, "", cv) < 0)
 			{	
@@ -384,6 +394,26 @@ public void onFocusChange(View v, boolean hasFocus) {
 	}
 
 }
+private void delteGame(String packageName)
+{
+	String selection = " _name=?";
+	String[] args = {packageName};
+	Cursor c = aph.Qurey(selection, args);
+	if(c.getCount() > 0)
+	{	
+		Game game = new Game(c);
+		if(game.getDesc().equals(Game.SELF_ADD))
+		{
+			aph.delete(packageName);
+		}
+		else
+		{
+			game.setExits("false");
+			aph.Insert(game);
+		}
+	}
+	c.close();
+}
 @SuppressWarnings("deprecation")
 @Override
 public void onClick(View v) {
@@ -393,7 +423,7 @@ public void onClick(View v) {
 	case R.id.delete:
 		if(mAdapter.cgamepkg!=null)
 		{	
-			aph.delete(mAdapter.cgamepkg);
+			delteGame(mAdapter.cgamepkg);
 			mAdapter.setfilterCursor(controll, myGame, false);
 		}
 		break;
@@ -422,6 +452,14 @@ public void onClick(View v) {
 				ResolveInfo rinfo = (ResolveInfo)((popAdapter.apps.get(i)).get("resolveInfo"));
 				Game game = new Game();
 				game.setName(rinfo.activityInfo.packageName);
+				String selection = " _name=?";
+				String[] args = {game.getName()};
+				Cursor c = aph.Qurey(selection, args);
+				if(c.getCount() < 1)
+					game.setDesc(Game.SELF_ADD);
+				else
+					game.setExits("true");
+				c.close();
 				game.setExits("true");
 				game.setControll(controll);
 				game.setLable(rinfo.loadLabel(getPackageManager())+"");
